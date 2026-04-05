@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wuys Macro — Admin Panel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background: var(--bg);
+            min-height: 100vh;
+        }
+        .panel-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 2;
+        }
+        .panel-container {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 450px;
+            margin: 2rem;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+            position: relative;
+            z-index: 2;
+        }
+        .panel-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .panel-header h1 {
+            font-family: var(--font-head);
+            font-size: 1.8rem;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+        .panel-header p {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--muted);
+        }
+        .panel-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .input-group label {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+        .input-group input {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            padding: 0.8rem 1rem;
+            color: var(--text);
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 10px rgba(157,111,255,0.3);
+        }
+        .panel-btn {
+            background: linear-gradient(135deg, var(--accent3), var(--accent));
+            border: none;
+            padding: 0.9rem;
+            color: #fff;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            letter-spacing: 0.15em;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 0.5rem;
+        }
+        .panel-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(157,111,255,0.4);
+        }
+        .panel-error {
+            color: #ff4444;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            text-align: center;
+            margin-top: 1rem;
+        }
+        .status-toggle {
+            margin: 2rem 0;
+        }
+        .toggle-switch {
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+        }
+        .toggle-switch input {
+            display: none;
+        }
+        .toggle-slider {
+            width: 60px;
+            height: 30px;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            position: relative;
+            transition: all 0.3s;
+        }
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--muted);
+            top: 2px;
+            left: 3px;
+            transition: all 0.3s;
+        }
+        .toggle-switch input:checked + .toggle-slider {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+        .toggle-switch input:checked + .toggle-slider::before {
+            transform: translateX(28px);
+            background: #fff;
+        }
+        .toggle-label {
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            color: var(--text);
+        }
+        .panel-logout {
+            background: transparent;
+            border: 1px solid var(--border);
+            padding: 0.6rem 1.2rem;
+            color: var(--muted);
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 2rem;
+        }
+        .panel-logout:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 1rem;
+            color: var(--muted);
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            color: var(--accent);
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-family: var(--font-mono);
+            margin-bottom: 1rem;
+        }
+        .status-badge.online {
+            background: rgba(0,255,136,0.2);
+            color: #00ff88;
+            border: 1px solid #00ff88;
+        }
+        .status-badge.offline {
+            background: rgba(255,68,68,0.2);
+            color: #ff4444;
+            border: 1px solid #ff4444;
+        }
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="noise-overlay"></div>
+<div class="scanlines"></div>
+<video autoplay muted loop id="video-background" playsinline>
+    <source src="background.mp4" type="video/mp4">
+</video>
+
+<div class="panel-page" id="panel-page">
+    <div class="panel-container" id="panel-container">
+        <!-- Login Form -->
+        <div id="login-form">
+            <div class="panel-header">
+                <h1>WUYS PANEL</h1>
+                <p>// ADMIN ACCESS</p>
+            </div>
+            <form class="panel-form" id="login-form-element">
+                <div class="input-group">
+                    <label>Username</label>
+                    <input type="text" id="username" placeholder="WuysMacro" autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="••••••••">
+                </div>
+                <button type="submit" class="panel-btn">LOGIN</button>
+                <div class="panel-error" id="login-error"></div>
+            </form>
+            <a href="index.html" class="back-link">← BACK TO MAIN PAGE</a>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboard" style="display: none;">
+            <div class="panel-header">
+                <h1>WUYS CONTROL</h1>
+                <p>// STATUS MANAGEMENT</p>
+            </div>
+            <div id="status-badge-container"></div>
+            <div class="status-toggle">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="status-toggle">
+                    <span class="toggle-slider"></span>
+                    <span class="toggle-label" id="toggle-label">STATUS: LOADING...</span>
+                </label>
+            </div>
+            <div style="margin: 1rem 0; padding: 1rem; background: var(--bg2); border-radius: 4px;">
+                <p style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--muted);">
+                    ⚔️ <strong>Wanna 1v1?</strong> Card sẽ hiển thị trên trang chính<br>
+                    🟢 ONLINE: Hiển thị "Sẵn sàng 1v1!" và button hoạt động<br>
+                    🔴 OFFLINE: Hiển thị "Hiện không nhận 1v1" và button vô hiệu<br>
+                    📡 Trạng thái được lưu trên JSONBin.io, tồn tại vĩnh viễn
+                </p>
+            </div>
+            <button class="panel-logout" id="logout-btn">LOGOUT</button>
+            <a href="index.html" class="back-link">← BACK TO MAIN PAGE</a>
+        </div>
+    </div>
+</div>
+
+<script src="panel.js"></script>
+</body>
+</html>
