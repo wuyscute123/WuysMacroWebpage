@@ -3,125 +3,291 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wuys Macro — Chọn Ngôn Ngữ / Select Language</title>
+    <title>Wuys Macro — Chọn Ngôn Ngữ</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Language selection page specific styles */
+        /* ===== LANGUAGE SELECTION PAGE SPECIFIC ===== */
         .lang-page {
+            position: relative;
+            z-index: 10;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 2rem;
-            position: relative;
-            z-index: 10;
         }
 
-        .lang-card-container {
+        /* Video background - center crop */
+        #video-background {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: cover;
+            opacity: 0.08;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Content wrapper */
+        .lang-content {
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Hero visual - smaller version */
+        .lang-visual {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 2rem;
+        }
+
+        .lang-visual .hv-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid rgba(157, 111, 255, 0.15);
+            animation: spin linear infinite;
+        }
+
+        .lang-visual .ring1 { 
+            width: 160px; 
+            height: 160px; 
+            top: 20px; 
+            left: 20px; 
+            animation-duration: 20s; 
+        }
+
+        .lang-visual .ring2 { 
+            width: 120px; 
+            height: 120px; 
+            top: 40px; 
+            left: 40px; 
+            animation-duration: 14s; 
+            border-color: rgba(123, 92, 255, 0.15); 
+            animation-direction: reverse; 
+        }
+
+        .lang-visual .ring3 { 
+            width: 190px; 
+            height: 190px; 
+            top: 5px; 
+            left: 5px; 
+            animation-duration: 30s; 
+            border-style: dashed; 
+            border-color: rgba(200, 75, 255, 0.08); 
+        }
+
+        @keyframes spin { 
+            from { transform: rotate(0deg); } 
+            to { transform: rotate(360deg); } 
+        }
+
+        .lang-visual .hv-core {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(157, 111, 255, 0.15) 0%, rgba(157, 111, 255, 0.03) 60%, transparent 100%);
+            border: 2px solid rgba(157, 111, 255, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 40px rgba(157, 111, 255, 0.2), inset 0 0 40px rgba(157, 111, 255, 0.05);
+            animation: corepulse 3s ease infinite;
+            z-index: 1;
+        }
+
+        .lang-visual .core-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: #9d6fff;
+            text-shadow: 0 0 20px #9d6fff;
+        }
+
+        @keyframes corepulse { 
+            0%, 100% { box-shadow: 0 0 40px rgba(157, 111, 255, 0.2), inset 0 0 40px rgba(157, 111, 255, 0.05); } 
+            50% { box-shadow: 0 0 80px rgba(157, 111, 255, 0.4), inset 0 0 60px rgba(157, 111, 255, 0.1); } 
+        }
+
+        /* Eyebrow */
+        .lang-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            color: #7a6f99;
+            margin-bottom: 1.5rem;
+        }
+
+        .lang-eyebrow .dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #9d6fff;
+            box-shadow: 0 0 8px #9d6fff;
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot { 
+            0%, 100% { transform: scale(1); } 
+            50% { transform: scale(1.5); } 
+        }
+
+        /* Title */
+        .lang-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(2.5rem, 6vw, 3.5rem);
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+        }
+
+        .lang-title .w {
+            color: #9d6fff;
+            text-shadow: 0 0 20px #9d6fff;
+        }
+
+        .lang-title .rest {
+            color: #e8e4f8;
+        }
+
+        .lang-title .dot {
+            color: #c84bff;
+        }
+
+        /* Subtitle */
+        .lang-subtitle {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.85rem;
+            color: #7a6f99;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 2.5rem;
+        }
+
+        /* Language Cards */
+        .lang-cards {
             display: flex;
             gap: 2rem;
-            flex-wrap: wrap;
             justify-content: center;
-            margin-top: 2rem;
+            flex-wrap: wrap;
         }
 
-        .lang-option {
-            background: rgba(15, 20, 25, 0.8);
+        .lang-card {
+            background: #110d1e;
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 20px;
+            border: 1px solid rgba(160, 120, 255, 0.1);
+            border-radius: 16px;
             padding: 2.5rem 3rem;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             text-align: center;
-            min-width: 240px;
+            min-width: 220px;
             position: relative;
             overflow: hidden;
         }
 
-        .lang-option:hover {
-            transform: translateY(-8px);
-            border-color: rgba(0, 229, 255, 0.3);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(0, 229, 255, 0.2);
-        }
-
-        .lang-option::before {
+        .lang-card::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             height: 2px;
-            background: linear-gradient(90deg, transparent, var(--accent, #00e5ff), transparent);
+            background: linear-gradient(90deg, transparent, #9d6fff, transparent);
             opacity: 0;
             transition: opacity 0.3s;
         }
 
-        .lang-option:hover::before {
+        .lang-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(157, 111, 255, 0.4);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(157, 111, 255, 0.15);
+            background: #181228;
+        }
+
+        .lang-card:hover::before {
             opacity: 1;
         }
 
         .lang-flag {
-            font-size: 3.5rem;
-            margin-bottom: 1rem;
+            font-size: 3rem;
+            margin-bottom: 0.75rem;
+            line-height: 1;
         }
 
         .lang-name {
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
-            color: #ffffff;
+            color: #e8e4f8;
         }
 
         .lang-code {
             font-family: 'Share Tech Mono', monospace;
-            font-size: 0.85rem;
-            color: var(--accent, #00e5ff);
+            font-size: 0.75rem;
+            color: #9d6fff;
             letter-spacing: 3px;
             text-transform: uppercase;
         }
 
-        .lang-footer-note {
+        /* Footer */
+        .lang-footer {
             position: absolute;
-            bottom: 2rem;
+            bottom: 1.5rem;
             left: 0;
             right: 0;
             text-align: center;
             font-family: 'Share Tech Mono', monospace;
-            font-size: 0.7rem;
-            color: var(--text-muted, #5a6675);
-            letter-spacing: 2px;
-        }
-
-        /* Hero visual inherited from main style */
-        .lang-hero-visual {
-            position: relative;
-            width: 200px;
-            height: 200px;
-            margin-bottom: 1rem;
+            font-size: 0.65rem;
+            color: #7a6f99;
+            letter-spacing: 3px;
+            text-transform: uppercase;
         }
 
         /* Responsive */
         @media (max-width: 600px) {
-            .lang-option {
-                padding: 2rem 2rem;
-                min-width: 200px;
-            }
-            .lang-name {
-                font-size: 1.5rem;
-            }
-            .lang-flag {
-                font-size: 3rem;
-            }
-            .lang-hero-visual {
+            .lang-visual {
                 width: 160px;
                 height: 160px;
             }
+            .lang-visual .ring1 { width: 130px; height: 130px; top: 15px; left: 15px; }
+            .lang-visual .ring2 { width: 95px; height: 95px; top: 32px; left: 32px; }
+            .lang-visual .ring3 { width: 155px; height: 155px; top: 2px; left: 2px; }
+            .lang-visual .hv-core { width: 65px; height: 65px; }
+            .lang-visual .core-text { font-size: 1.8rem; }
+            
+            .lang-card {
+                padding: 2rem 2rem;
+                min-width: 180px;
+            }
+            .lang-name {
+                font-size: 1.3rem;
+            }
+            .lang-flag {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* Hide boot hint initially */
+        .boot-hint {
+            opacity: 0;
         }
     </style>
 </head>
@@ -132,11 +298,11 @@
     <source src="background.mp4" type="video/mp4">
 </video>
 
-<!-- Noise overlay -->
+<!-- Overlays -->
 <div class="noise-overlay"></div>
 <div class="scanlines"></div>
 
-<!-- Boot screen -->
+<!-- Boot Screen -->
 <div class="boot-screen" id="boot-screen">
     <div class="boot-content">
         <div class="boot-logo">
@@ -152,53 +318,53 @@
 
 <!-- Language Selection Page -->
 <div class="lang-page">
-    
-    <!-- Hero Visual (giống trang chính) -->
-    <div class="lang-hero-visual">
-        <div class="hv-ring ring1"></div>
-        <div class="hv-ring ring2"></div>
-        <div class="hv-ring ring3"></div>
-        <div class="hv-core">
-            <span class="core-text">W</span>
-        </div>
-    </div>
-
-    <!-- Title -->
-    <div class="hero-eyebrow">
-        <span class="eyebrow-dot"></span>
-        VERSION 2.0 — TOE METHOD
-        <span class="eyebrow-dot"></span>
-    </div>
-    
-    <h1 style="font-family: 'Orbitron', sans-serif; font-size: 2.5rem; font-weight: 700; text-align: center; margin-bottom: 0.5rem;">
-        <span style="color: #00e5ff; text-shadow: 0 0 20px #00e5ff;">W</span>UYS<span style="color: #00e5ff;">.</span>
-    </h1>
-    
-    <p style="font-family: 'Share Tech Mono', monospace; color: #a0aab5; text-align: center; margin-bottom: 2rem; letter-spacing: 2px; text-transform: uppercase; font-size: 0.9rem;">
-        Choose your language / Chọn ngôn ngữ
-    </p>
-
-    <!-- Language Cards -->
-    <div class="lang-card-container">
-        <!-- Tiếng Việt -->
-        <div class="lang-option" onclick="selectLanguage('vi')">
-            <div class="lang-flag">🇻🇳</div>
-            <div class="lang-name">Tiếng Việt</div>
-            <div class="lang-code">[ VI ]</div>
-        </div>
+    <div class="lang-content">
         
-        <!-- English -->
-        <div class="lang-option" onclick="selectLanguage('en')">
-            <div class="lang-flag">🇺🇸</div>
-            <div class="lang-name">English</div>
-            <div class="lang-code">[ EN ]</div>
+        <!-- Hero Visual -->
+        <div class="lang-visual">
+            <div class="hv-ring ring1"></div>
+            <div class="hv-ring ring2"></div>
+            <div class="hv-ring ring3"></div>
+            <div class="hv-core">
+                <span class="core-text">W</span>
+            </div>
+        </div>
+
+        <!-- Eyebrow -->
+        <div class="lang-eyebrow">
+            <span class="dot"></span>
+            VERSION 2.0 — TOE METHOD
+            <span class="dot"></span>
+        </div>
+
+        <!-- Title -->
+        <h1 class="lang-title">
+            <span class="w">W</span><span class="rest">UYS</span><span class="dot">.</span>
+        </h1>
+
+        <!-- Subtitle -->
+        <p class="lang-subtitle">CHOOSE YOUR LANGUAGE / CHỌN NGÔN NGỮ</p>
+
+        <!-- Language Cards -->
+        <div class="lang-cards">
+            <!-- Tiếng Việt -->
+            <div class="lang-card" onclick="selectLanguage('vi')">
+                <div class="lang-flag">🇻🇳</div>
+                <div class="lang-name">Tiếng Việt</div>
+                <div class="lang-code">[ VI ]</div>
+            </div>
+            
+            <!-- English -->
+            <div class="lang-card" onclick="selectLanguage('en')">
+                <div class="lang-flag">🇺🇸</div>
+                <div class="lang-name">English</div>
+                <div class="lang-code">[ EN ]</div>
+            </div>
         </div>
     </div>
 
-    <!-- Footer note -->
-    <div class="lang-footer-note">
-        <span>WUYS MACRO — PRECISION CLICK ENGINE</span>
-    </div>
+    <!-- Footer -->
+    <div class="lang-footer">WUYS MACRO — PRECISION CLICK ENGINE</div>
 </div>
 
 <script>
@@ -209,10 +375,10 @@
         const bootStatus = document.getElementById('boot-status');
         const bootHint = document.querySelector('.boot-hint');
         
-        const statusMessages = [
+        const messages = [
             'INITIALIZING SYSTEM...',
             'LOADING MODULES...',
-            'CALIBRATING CLICK ENGINE...',
+            'CALIBRATING ENGINE...',
             'TOE METHOD v2.0 ACTIVE',
             'READY'
         ];
@@ -220,91 +386,60 @@
         let progress = 0;
         let step = 0;
         
-        const bootInterval = setInterval(() => {
+        const interval = setInterval(() => {
             progress += 2;
             bootBar.style.width = progress + '%';
             
             if (progress >= 20 && step === 0) {
                 step = 1;
-                bootStatus.textContent = statusMessages[1];
+                bootStatus.textContent = messages[1];
             } else if (progress >= 45 && step === 1) {
                 step = 2;
-                bootStatus.textContent = statusMessages[2];
+                bootStatus.textContent = messages[2];
             } else if (progress >= 70 && step === 2) {
                 step = 3;
-                bootStatus.textContent = statusMessages[3];
+                bootStatus.textContent = messages[3];
             } else if (progress >= 90 && step === 3) {
                 step = 4;
-                bootStatus.textContent = statusMessages[4];
+                bootStatus.textContent = messages[4];
             }
             
             if (progress >= 100) {
-                clearInterval(bootInterval);
-                bootStatus.textContent = statusMessages[4];
+                clearInterval(interval);
+                bootStatus.textContent = messages[4];
                 bootHint.style.opacity = '1';
-                bootHint.style.animation = 'blink-hint 1.5s step-end infinite';
-                
+                bootHint.style.animation = 'blink 1.2s infinite';
                 bootScreen.style.pointerEvents = 'auto';
-                bootScreen.addEventListener('click', dismissBoot);
-                document.addEventListener('keydown', function(e) {
+                
+                const dismiss = () => {
+                    bootScreen.classList.add('hidden');
+                    bootScreen.removeEventListener('click', dismiss);
+                    document.removeEventListener('keydown', keyHandler);
+                };
+                
+                const keyHandler = (e) => {
                     if (e.code === 'Space' || e.code === 'Enter') {
-                        dismissBoot();
+                        dismiss();
                     }
-                });
+                };
+                
+                bootScreen.addEventListener('click', dismiss);
+                document.addEventListener('keydown', keyHandler);
             }
         }, 30);
-        
-        function dismissBoot() {
-            bootScreen.classList.add('fade-out');
-            setTimeout(() => {
-                bootScreen.classList.add('hidden');
-            }, 600);
-            
-            bootScreen.removeEventListener('click', dismissBoot);
-            bootScreen.style.pointerEvents = 'none';
-        }
     })();
 
     // ========== LANGUAGE SELECTION ==========
     function selectLanguage(lang) {
         localStorage.setItem('wuys_preferred_lang', lang);
-        
-        if (lang === 'vi') {
-            window.location.href = 'index_vi.html';
-        } else {
-            window.location.href = 'index_en.html';
-        }
+        window.location.href = lang === 'vi' ? 'index_vi.html' : 'index_en.html';
     }
 
     // ========== KEYBOARD SHORTCUTS ==========
-    document.addEventListener('keydown', function(e) {
-        if (e.code === 'KeyV') {
-            selectLanguage('vi');
-        }
-        if (e.code === 'KeyE') {
-            selectLanguage('en');
-        }
+    document.addEventListener('keydown', (e) => {
+        if (e.code === 'KeyV') selectLanguage('vi');
+        if (e.code === 'KeyE') selectLanguage('en');
     });
-
-    // Add blink animation if not already defined
-    if (!document.querySelector('#blink-style')) {
-        const style = document.createElement('style');
-        style.id = 'blink-style';
-        style.textContent = `
-            @keyframes blink-hint {
-                0%, 100% { opacity: 0; }
-                50% { opacity: 1; }
-            }
-            .boot-screen.fade-out {
-                opacity: 0;
-                transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            }
-            .boot-screen.hidden {
-                display: none;
-            }
-        `;
-        document.head.appendChild(style);
-    }
 </script>
 
 </body>
