@@ -7,400 +7,121 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
     <style>
-        /* === RESET & BASE === */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --bg-dark: #0a0c0f;
-            --bg-darker: #050607;
-            --accent: #00e5ff;
-            --accent-dim: #00b8d4;
-            --accent-glow: rgba(0, 229, 255, 0.3);
-            --text-primary: #ffffff;
-            --text-secondary: #a0aab5;
-            --text-muted: #5a6675;
-            --border-dim: rgba(255, 255, 255, 0.06);
-            --card-bg: rgba(15, 20, 25, 0.7);
-            --font-mono: 'Share Tech Mono', monospace;
-            --font-display: 'Orbitron', sans-serif;
-            --font-body: 'Rajdhani', sans-serif;
-        }
-
-        body {
-            background: var(--bg-dark);
-            color: var(--text-primary);
-            font-family: var(--font-body);
-            line-height: 1.6;
-            overflow-x: hidden;
+        /* Language selection page specific styles */
+        .lang-page {
             min-height: 100vh;
-            position: relative;
-        }
-
-        /* Video Background */
-        #video-background {
-            position: fixed;
-            right: 0;
-            bottom: 0;
-            min-width: 100%;
-            min-height: 100%;
-            width: auto;
-            height: auto;
-            z-index: -2;
-            object-fit: cover;
-            opacity: 0.45;
-            filter: grayscale(0.3) brightness(0.6);
-        }
-
-        /* Overlays */
-        .noise-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJmIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iLjc1IiBudW1PY3RhdmVzPSIzIiAvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNmKSIgb3BhY2l0eT0iMC4wNCIgLz48L3N2Zz4=');
-            opacity: 0.4;
-            pointer-events: none;
-            z-index: -1;
-        }
-
-        .scanlines {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.1) 0px, rgba(0, 229, 255, 0.02) 1px, transparent 2px);
-            pointer-events: none;
-            z-index: 2;
-        }
-
-        /* ========== BOOT SCREEN ========== */
-        .boot-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg-darker);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            pointer-events: none;
-        }
-
-        .boot-screen.fade-out {
-            opacity: 0;
-        }
-
-        .boot-screen.hidden {
-            display: none;
-        }
-
-        .boot-content {
-            text-align: center;
-            width: 300px;
-        }
-
-        .boot-logo {
-            font-family: var(--font-display);
-            font-size: 3.5rem;
-            font-weight: 700;
-            letter-spacing: 8px;
-            margin-bottom: 1.5rem;
-            animation: boot-glow 2s ease-in-out infinite alternate;
-        }
-
-        .boot-w {
-            color: var(--accent);
-            text-shadow: 0 0 20px var(--accent);
-            font-weight: 900;
-        }
-
-        .boot-rest {
-            color: var(--text-primary);
-            text-shadow: 0 0 10px rgba(255,255,255,0.3);
-        }
-
-        @keyframes boot-glow {
-            0% { text-shadow: 0 0 10px var(--accent); }
-            100% { text-shadow: 0 0 40px var(--accent), 0 0 60px var(--accent-dim); }
-        }
-
-        .boot-bar-wrap {
-            width: 100%;
-            height: 2px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 1px;
-            overflow: hidden;
-            margin-bottom: 1rem;
-        }
-
-        .boot-bar {
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent-dim), var(--accent));
-            box-shadow: 0 0 10px var(--accent);
-            transition: width 0.05s linear;
-            border-radius: 1px;
-        }
-
-        .boot-status {
-            font-family: var(--font-mono);
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-bottom: 2rem;
-        }
-
-        .boot-hint {
-            font-family: var(--font-mono);
-            font-size: 0.65rem;
-            color: var(--accent);
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            opacity: 0;
-            animation: blink-hint 1.5s step-end infinite;
-        }
-
-        @keyframes blink-hint {
-            0%, 100% { opacity: 0; }
-            50% { opacity: 1; }
-        }
-
-        /* ========== MAIN LAYOUT ========== */
-        .lang-container {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            padding: 1.5rem;
+            padding: 2rem;
             position: relative;
             z-index: 10;
-            opacity: 0;
-            animation: fade-in-content 0.6s ease-out 3.2s forwards;
         }
 
-        @keyframes fade-in-content {
-            to { opacity: 1; }
-        }
-
-        /* Hero Visual - Compact */
-        .lang-hero-visual {
-            position: relative;
-            width: 160px;
-            height: 160px;
-            margin-bottom: 1.5rem;
-        }
-
-        .hv-ring {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            border-radius: 50%;
-            border: 1px solid rgba(0, 229, 255, 0.15);
-            animation: pulse-ring 4s ease-out infinite;
-        }
-
-        .ring1 { width: 100%; height: 100%; animation-delay: 0s; }
-        .ring2 { width: 70%; height: 70%; animation-delay: 1s; border-color: rgba(0, 229, 255, 0.25); }
-        .ring3 { width: 45%; height: 45%; animation-delay: 2s; border-color: rgba(0, 229, 255, 0.4); }
-
-        .hv-core {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 55px;
-            height: 55px;
-            background: radial-gradient(circle, rgba(0, 229, 255, 0.2) 0%, transparent 70%);
-            border-radius: 50%;
+        .lang-card-container {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1.5px solid var(--accent);
-            box-shadow: 0 0 40px var(--accent-glow);
-            animation: core-pulse 3s ease-in-out infinite;
-        }
-
-        .core-text {
-            font-family: var(--font-display);
-            font-size: 2.2rem;
-            font-weight: 900;
-            color: var(--accent);
-            text-shadow: 0 0 20px var(--accent);
-            letter-spacing: -1px;
-        }
-
-        .hv-particles {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-        }
-
-        @keyframes pulse-ring {
-            0% { opacity: 0.1; transform: translate(-50%, -50%) scale(0.9); }
-            50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.05); }
-            100% { opacity: 0.1; transform: translate(-50%, -50%) scale(0.9); }
-        }
-
-        @keyframes core-pulse {
-            0%, 100% { box-shadow: 0 0 20px var(--accent-glow); }
-            50% { box-shadow: 0 0 50px var(--accent); }
-        }
-
-        /* Welcome Text - Compact */
-        .lang-title {
-            font-family: var(--font-display);
-            font-size: 2.5rem;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 0.3rem;
-            letter-spacing: 3px;
-        }
-
-        .lang-title .w {
-            color: var(--accent);
-            text-shadow: 0 0 20px var(--accent);
-            font-weight: 900;
-        }
-
-        .lang-subtitle {
-            font-family: var(--font-mono);
-            color: var(--text-secondary);
-            text-align: center;
-            margin-bottom: 2rem;
-            font-size: 0.85rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        /* Language Cards - Compact */
-        .lang-cards {
-            display: flex;
-            gap: 1.2rem;
+            gap: 2rem;
             flex-wrap: wrap;
             justify-content: center;
+            margin-top: 2rem;
         }
 
-        .lang-card {
-            background: var(--card-bg);
+        .lang-option {
+            background: rgba(15, 20, 25, 0.8);
             backdrop-filter: blur(12px);
-            border: 1px solid var(--border-dim);
-            border-radius: 16px;
-            padding: 1.5rem 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 2.5rem 3rem;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transition: all 0.3s ease;
             text-align: center;
-            min-width: 160px;
+            min-width: 240px;
             position: relative;
             overflow: hidden;
         }
 
-        .lang-card::before {
+        .lang-option:hover {
+            transform: translateY(-8px);
+            border-color: rgba(0, 229, 255, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(0, 229, 255, 0.2);
+        }
+
+        .lang-option::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             height: 2px;
-            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            background: linear-gradient(90deg, transparent, var(--accent, #00e5ff), transparent);
             opacity: 0;
             transition: opacity 0.3s;
         }
 
-        .lang-card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(0, 229, 255, 0.3);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5), 0 0 25px var(--accent-glow);
-        }
-
-        .lang-card:hover::before {
+        .lang-option:hover::before {
             opacity: 1;
         }
 
         .lang-flag {
-            font-size: 2.8rem;
-            margin-bottom: 0.5rem;
-            line-height: 1;
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
         }
 
         .lang-name {
-            font-family: var(--font-display);
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 0.2rem;
-            color: var(--text-primary);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
         }
 
-        .lang-native {
-            font-family: var(--font-mono);
-            color: var(--accent);
-            font-size: 0.7rem;
+        .lang-code {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--accent, #00e5ff);
+            letter-spacing: 3px;
             text-transform: uppercase;
-            letter-spacing: 2px;
         }
 
-        /* Footer - Compact */
-        .lang-footer {
+        .lang-footer-note {
             position: absolute;
-            bottom: 1rem;
+            bottom: 2rem;
             left: 0;
             right: 0;
             text-align: center;
-            color: var(--text-muted);
-            font-family: var(--font-mono);
-            font-size: 0.65rem;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted, #5a6675);
             letter-spacing: 2px;
         }
 
-        .lang-footer a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .lang-footer a:hover {
-            color: var(--accent);
-        }
-
-        /* Version tag */
-        .version-tag {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            font-family: var(--font-mono);
-            font-size: 0.6rem;
-            color: var(--accent-dim);
-            letter-spacing: 1px;
-            opacity: 0.6;
+        /* Hero visual inherited from main style */
+        .lang-hero-visual {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin-bottom: 1rem;
         }
 
         /* Responsive */
-        @media (max-width: 500px) {
-            .lang-title { font-size: 2rem; }
-            .lang-card { padding: 1.2rem 1.5rem; min-width: 130px; }
-            .lang-name { font-size: 1.1rem; }
-            .lang-flag { font-size: 2.2rem; }
-            .lang-hero-visual { width: 130px; height: 130px; }
-            .core-text { font-size: 1.8rem; }
-            .boot-logo { font-size: 2.8rem; }
-        }
-
-        /* Floating particles animation */
-        @keyframes float-particle {
-            0% { transform: translate(0, 0); opacity: 0.2; }
-            100% { transform: translate(var(--tx), var(--ty)); opacity: 0.7; }
+        @media (max-width: 600px) {
+            .lang-option {
+                padding: 2rem 2rem;
+                min-width: 200px;
+            }
+            .lang-name {
+                font-size: 1.5rem;
+            }
+            .lang-flag {
+                font-size: 3rem;
+            }
+            .lang-hero-visual {
+                width: 160px;
+                height: 160px;
+            }
         }
     </style>
 </head>
@@ -415,7 +136,7 @@
 <div class="noise-overlay"></div>
 <div class="scanlines"></div>
 
-<!-- Boot Screen -->
+<!-- Boot screen -->
 <div class="boot-screen" id="boot-screen">
     <div class="boot-content">
         <div class="boot-logo">
@@ -424,18 +145,15 @@
         <div class="boot-bar-wrap">
             <div class="boot-bar" id="boot-bar"></div>
         </div>
-        <div class="boot-status" id="boot-status">INITIALIZING...</div>
-        <div class="boot-hint" id="boot-hint">[ TAP TO ENTER ]</div>
+        <div class="boot-status" id="boot-status">INITIALIZING SYSTEM...</div>
+        <div class="boot-hint">[ TAP TO ENTER ]</div>
     </div>
 </div>
 
-<!-- Main Content -->
-<div class="lang-container" id="main-content">
+<!-- Language Selection Page -->
+<div class="lang-page">
     
-    <!-- Version tag -->
-    <div class="version-tag">v2.0 — TOE METHOD</div>
-
-    <!-- Hero Visual -->
+    <!-- Hero Visual (giống trang chính) -->
     <div class="lang-hero-visual">
         <div class="hv-ring ring1"></div>
         <div class="hv-ring ring2"></div>
@@ -443,37 +161,43 @@
         <div class="hv-core">
             <span class="core-text">W</span>
         </div>
-        <div class="hv-particles" id="particles"></div>
     </div>
 
     <!-- Title -->
-    <h1 class="lang-title">
-        <span class="w">W</span>UYS<span style="color: var(--accent);">.</span>
+    <div class="hero-eyebrow">
+        <span class="eyebrow-dot"></span>
+        VERSION 2.0 — TOE METHOD
+        <span class="eyebrow-dot"></span>
+    </div>
+    
+    <h1 style="font-family: 'Orbitron', sans-serif; font-size: 2.5rem; font-weight: 700; text-align: center; margin-bottom: 0.5rem;">
+        <span style="color: #00e5ff; text-shadow: 0 0 20px #00e5ff;">W</span>UYS<span style="color: #00e5ff;">.</span>
     </h1>
-    <p class="lang-subtitle">Choose your language / Chọn ngôn ngữ</p>
+    
+    <p style="font-family: 'Share Tech Mono', monospace; color: #a0aab5; text-align: center; margin-bottom: 2rem; letter-spacing: 2px; text-transform: uppercase; font-size: 0.9rem;">
+        Choose your language / Chọn ngôn ngữ
+    </p>
 
     <!-- Language Cards -->
-    <div class="lang-cards">
+    <div class="lang-card-container">
         <!-- Tiếng Việt -->
-        <div class="lang-card" onclick="selectLanguage('vi')">
+        <div class="lang-option" onclick="selectLanguage('vi')">
             <div class="lang-flag">🇻🇳</div>
             <div class="lang-name">Tiếng Việt</div>
-            <div class="lang-native">VI</div>
+            <div class="lang-code">[ VI ]</div>
         </div>
         
         <!-- English -->
-        <div class="lang-card" onclick="selectLanguage('en')">
-            <div class="lang-flag">🇬🇧</div>
+        <div class="lang-option" onclick="selectLanguage('en')">
+            <div class="lang-flag">🇺🇸</div>
             <div class="lang-name">English</div>
-            <div class="lang-native">EN</div>
+            <div class="lang-code">[ EN ]</div>
         </div>
     </div>
 
-    <!-- Footer -->
-    <div class="lang-footer">
-        <span>WUYS MACRO — PRECISION CLICK ENGINE</span><br>
-        <a href="https://github.com/wuyscute123/WuysMacro" target="_blank">GITHUB</a> · 
-        <a href="#" onclick="alert('Liên hệ qua Facebook: wuys nee 🐧')">CONTACT</a>
+    <!-- Footer note -->
+    <div class="lang-footer-note">
+        <span>WUYS MACRO — PRECISION CLICK ENGINE</span>
     </div>
 </div>
 
@@ -483,7 +207,7 @@
         const bootScreen = document.getElementById('boot-screen');
         const bootBar = document.getElementById('boot-bar');
         const bootStatus = document.getElementById('boot-status');
-        const bootHint = document.getElementById('boot-hint');
+        const bootHint = document.querySelector('.boot-hint');
         
         const statusMessages = [
             'INITIALIZING SYSTEM...',
@@ -500,7 +224,6 @@
             progress += 2;
             bootBar.style.width = progress + '%';
             
-            // Update status message
             if (progress >= 20 && step === 0) {
                 step = 1;
                 bootStatus.textContent = statusMessages[1];
@@ -521,7 +244,6 @@
                 bootHint.style.opacity = '1';
                 bootHint.style.animation = 'blink-hint 1.5s step-end infinite';
                 
-                // Enable tap to enter
                 bootScreen.style.pointerEvents = 'auto';
                 bootScreen.addEventListener('click', dismissBoot);
                 document.addEventListener('keydown', function(e) {
@@ -538,7 +260,6 @@
                 bootScreen.classList.add('hidden');
             }, 600);
             
-            // Clean up listeners
             bootScreen.removeEventListener('click', dismissBoot);
             bootScreen.style.pointerEvents = 'none';
         }
@@ -546,10 +267,8 @@
 
     // ========== LANGUAGE SELECTION ==========
     function selectLanguage(lang) {
-        // Lưu lựa chọn ngôn ngữ vào localStorage
         localStorage.setItem('wuys_preferred_lang', lang);
         
-        // Chuyển hướng đến trang tương ứng
         if (lang === 'vi') {
             window.location.href = 'index_vi.html';
         } else {
@@ -557,44 +276,35 @@
         }
     }
 
-    // ========== PARTICLES EFFECT ==========
-    (function() {
-        const particlesContainer = document.getElementById('particles');
-        if (!particlesContainer) return;
-        
-        for (let i = 0; i < 15; i++) {
-            const particle = document.createElement('div');
-            const tx = (Math.random() * 30 - 15) + 'px';
-            const ty = (Math.random() * 30 - 15) + 'px';
-            
-            particle.style.cssText = `
-                position: absolute;
-                width: 2px;
-                height: 2px;
-                background: #00e5ff;
-                border-radius: 50%;
-                opacity: ${Math.random() * 0.4 + 0.2};
-                left: ${Math.random() * 100}%;
-                top: ${Math.random() * 100}%;
-                --tx: ${tx};
-                --ty: ${ty};
-                animation: float-particle ${Math.random() * 4 + 3}s infinite alternate;
-            `;
-            particlesContainer.appendChild(particle);
-        }
-    })();
-
-    // ========== KEYBOARD SHORTCUT ==========
+    // ========== KEYBOARD SHORTCUTS ==========
     document.addEventListener('keydown', function(e) {
-        // Phím V cho tiếng Việt
         if (e.code === 'KeyV') {
             selectLanguage('vi');
         }
-        // Phím E cho English
         if (e.code === 'KeyE') {
             selectLanguage('en');
         }
     });
+
+    // Add blink animation if not already defined
+    if (!document.querySelector('#blink-style')) {
+        const style = document.createElement('style');
+        style.id = 'blink-style';
+        style.textContent = `
+            @keyframes blink-hint {
+                0%, 100% { opacity: 0; }
+                50% { opacity: 1; }
+            }
+            .boot-screen.fade-out {
+                opacity: 0;
+                transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            }
+            .boot-screen.hidden {
+                display: none;
+            }
+        `;
+        document.head.appendChild(style);
+    }
 </script>
 
 </body>
