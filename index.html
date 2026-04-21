@@ -1,13 +1,408 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wuys Macro — Precision Click Engine</title>
+    <title>Wuys Macro — Chọn Ngôn Ngữ / Select Language</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <style>
+        /* === RESET & BASE === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #0a0c0f;
+            --bg-darker: #050607;
+            --accent: #00e5ff;
+            --accent-dim: #00b8d4;
+            --accent-glow: rgba(0, 229, 255, 0.3);
+            --text-primary: #ffffff;
+            --text-secondary: #a0aab5;
+            --text-muted: #5a6675;
+            --border-dim: rgba(255, 255, 255, 0.06);
+            --card-bg: rgba(15, 20, 25, 0.7);
+            --font-mono: 'Share Tech Mono', monospace;
+            --font-display: 'Orbitron', sans-serif;
+            --font-body: 'Rajdhani', sans-serif;
+        }
+
+        body {
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Video Background */
+        #video-background {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: -2;
+            object-fit: cover;
+            opacity: 0.45;
+            filter: grayscale(0.3) brightness(0.6);
+        }
+
+        /* Overlays */
+        .noise-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJmIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iLjc1IiBudW1PY3RhdmVzPSIzIiAvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNmKSIgb3BhY2l0eT0iMC4wNCIgLz48L3N2Zz4=');
+            opacity: 0.4;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.1) 0px, rgba(0, 229, 255, 0.02) 1px, transparent 2px);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* ========== BOOT SCREEN ========== */
+        .boot-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-darker);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            pointer-events: none;
+        }
+
+        .boot-screen.fade-out {
+            opacity: 0;
+        }
+
+        .boot-screen.hidden {
+            display: none;
+        }
+
+        .boot-content {
+            text-align: center;
+            width: 300px;
+        }
+
+        .boot-logo {
+            font-family: var(--font-display);
+            font-size: 3.5rem;
+            font-weight: 700;
+            letter-spacing: 8px;
+            margin-bottom: 1.5rem;
+            animation: boot-glow 2s ease-in-out infinite alternate;
+        }
+
+        .boot-w {
+            color: var(--accent);
+            text-shadow: 0 0 20px var(--accent);
+            font-weight: 900;
+        }
+
+        .boot-rest {
+            color: var(--text-primary);
+            text-shadow: 0 0 10px rgba(255,255,255,0.3);
+        }
+
+        @keyframes boot-glow {
+            0% { text-shadow: 0 0 10px var(--accent); }
+            100% { text-shadow: 0 0 40px var(--accent), 0 0 60px var(--accent-dim); }
+        }
+
+        .boot-bar-wrap {
+            width: 100%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 1px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .boot-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-dim), var(--accent));
+            box-shadow: 0 0 10px var(--accent);
+            transition: width 0.05s linear;
+            border-radius: 1px;
+        }
+
+        .boot-status {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+        }
+
+        .boot-hint {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            color: var(--accent);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            opacity: 0;
+            animation: blink-hint 1.5s step-end infinite;
+        }
+
+        @keyframes blink-hint {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        /* ========== MAIN LAYOUT ========== */
+        .lang-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 1.5rem;
+            position: relative;
+            z-index: 10;
+            opacity: 0;
+            animation: fade-in-content 0.6s ease-out 3.2s forwards;
+        }
+
+        @keyframes fade-in-content {
+            to { opacity: 1; }
+        }
+
+        /* Hero Visual - Compact */
+        .lang-hero-visual {
+            position: relative;
+            width: 160px;
+            height: 160px;
+            margin-bottom: 1.5rem;
+        }
+
+        .hv-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            border: 1px solid rgba(0, 229, 255, 0.15);
+            animation: pulse-ring 4s ease-out infinite;
+        }
+
+        .ring1 { width: 100%; height: 100%; animation-delay: 0s; }
+        .ring2 { width: 70%; height: 70%; animation-delay: 1s; border-color: rgba(0, 229, 255, 0.25); }
+        .ring3 { width: 45%; height: 45%; animation-delay: 2s; border-color: rgba(0, 229, 255, 0.4); }
+
+        .hv-core {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 55px;
+            height: 55px;
+            background: radial-gradient(circle, rgba(0, 229, 255, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1.5px solid var(--accent);
+            box-shadow: 0 0 40px var(--accent-glow);
+            animation: core-pulse 3s ease-in-out infinite;
+        }
+
+        .core-text {
+            font-family: var(--font-display);
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--accent);
+            text-shadow: 0 0 20px var(--accent);
+            letter-spacing: -1px;
+        }
+
+        .hv-particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        @keyframes pulse-ring {
+            0% { opacity: 0.1; transform: translate(-50%, -50%) scale(0.9); }
+            50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.05); }
+            100% { opacity: 0.1; transform: translate(-50%, -50%) scale(0.9); }
+        }
+
+        @keyframes core-pulse {
+            0%, 100% { box-shadow: 0 0 20px var(--accent-glow); }
+            50% { box-shadow: 0 0 50px var(--accent); }
+        }
+
+        /* Welcome Text - Compact */
+        .lang-title {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 0.3rem;
+            letter-spacing: 3px;
+        }
+
+        .lang-title .w {
+            color: var(--accent);
+            text-shadow: 0 0 20px var(--accent);
+            font-weight: 900;
+        }
+
+        .lang-subtitle {
+            font-family: var(--font-mono);
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Language Cards - Compact */
+        .lang-cards {
+            display: flex;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .lang-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-dim);
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            text-align: center;
+            min-width: 160px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .lang-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .lang-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 229, 255, 0.3);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5), 0 0 25px var(--accent-glow);
+        }
+
+        .lang-card:hover::before {
+            opacity: 1;
+        }
+
+        .lang-flag {
+            font-size: 2.8rem;
+            margin-bottom: 0.5rem;
+            line-height: 1;
+        }
+
+        .lang-name {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+            color: var(--text-primary);
+        }
+
+        .lang-native {
+            font-family: var(--font-mono);
+            color: var(--accent);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Footer - Compact */
+        .lang-footer {
+            position: absolute;
+            bottom: 1rem;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+        }
+
+        .lang-footer a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .lang-footer a:hover {
+            color: var(--accent);
+        }
+
+        /* Version tag */
+        .version-tag {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            color: var(--accent-dim);
+            letter-spacing: 1px;
+            opacity: 0.6;
+        }
+
+        /* Responsive */
+        @media (max-width: 500px) {
+            .lang-title { font-size: 2rem; }
+            .lang-card { padding: 1.2rem 1.5rem; min-width: 130px; }
+            .lang-name { font-size: 1.1rem; }
+            .lang-flag { font-size: 2.2rem; }
+            .lang-hero-visual { width: 130px; height: 130px; }
+            .core-text { font-size: 1.8rem; }
+            .boot-logo { font-size: 2.8rem; }
+        }
+
+        /* Floating particles animation */
+        @keyframes float-particle {
+            0% { transform: translate(0, 0); opacity: 0.2; }
+            100% { transform: translate(var(--tx), var(--ty)); opacity: 0.7; }
+        }
+    </style>
 </head>
 <body>
 
@@ -20,7 +415,7 @@
 <div class="noise-overlay"></div>
 <div class="scanlines"></div>
 
-<!-- Boot screen -->
+<!-- Boot Screen -->
 <div class="boot-screen" id="boot-screen">
     <div class="boot-content">
         <div class="boot-logo">
@@ -29,263 +424,178 @@
         <div class="boot-bar-wrap">
             <div class="boot-bar" id="boot-bar"></div>
         </div>
-        <div class="boot-status" id="boot-status">INITIALIZING SYSTEM...</div>
-        <div class="boot-hint">[ TAP TO ENTER ]</div>
+        <div class="boot-status" id="boot-status">INITIALIZING...</div>
+        <div class="boot-hint" id="boot-hint">[ TAP TO ENTER ]</div>
     </div>
 </div>
 
-<!-- Main App -->
-<div class="app" id="app">
+<!-- Main Content -->
+<div class="lang-container" id="main-content">
+    
+    <!-- Version tag -->
+    <div class="version-tag">v2.0 — TOE METHOD</div>
 
-    <!-- NAV -->
-    <nav class="nav" id="nav">
-        <div class="nav-logo">
-            <span class="logo-w">W</span>UYS<span class="logo-dot">.</span>
+    <!-- Hero Visual -->
+    <div class="lang-hero-visual">
+        <div class="hv-ring ring1"></div>
+        <div class="hv-ring ring2"></div>
+        <div class="hv-ring ring3"></div>
+        <div class="hv-core">
+            <span class="core-text">W</span>
         </div>
-        <div class="nav-links">
-            <a href="#hero" class="nav-link active">Home</a>
-            <a href="#about" class="nav-link">About</a>
-            <a href="#features" class="nav-link">Features</a>
-            <a href="#demo" class="nav-link">Demo</a>
-            <a href="match-history.html" class="nav-link history-link">📜 History</a>
-        </div>
-        <button class="nav-cta" onclick="window.location='https://github.com/wuyscute123/WuysMacro/releases/download/2.0ToeMethod/WuysMacroV2.0-ToeMethod.exe'">
-            DOWNLOAD
-        </button>
-        <button class="hamburger" id="hamburger" onclick="toggleNav()">
-            <span></span><span></span><span></span>
-        </button>
-    </nav>
-
-    <!-- Mobile menu -->
-    <div class="mobile-menu" id="mobile-menu">
-        <a href="#hero" onclick="toggleNav()">Home</a>
-        <a href="#about" onclick="toggleNav()">About</a>
-        <a href="#features" onclick="toggleNav()">Features</a>
-        <a href="#demo" onclick="toggleNav()">Demo</a>
-        <a href="match-history.html" onclick="toggleNav()" class="history-mobile">📜 Lịch sử trận đấu</a>
-        <a href="https://github.com/wuyscute123/WuysMacro/releases/download/2.0ToeMethod/WuysMacroV2.0-ToeMethod.exe" class="mobile-dl">DOWNLOAD v2.0</a>
+        <div class="hv-particles" id="particles"></div>
     </div>
 
-    <!-- HERO -->
-    <section class="hero" id="hero">
-        <div class="hero-bg-grid"></div>
-        <div class="hero-content">
-            <div class="hero-eyebrow">
-                <span class="eyebrow-dot"></span>
-                VERSION 2.0 — TOE METHOD
-                <span class="eyebrow-dot"></span>
-            </div>
-            <h1 class="hero-title">
-                <span class="title-line line1">WUYS</span>
-                <span class="title-line line2">MACRO</span>
-            </h1>
-            <p class="hero-sub">Precision Click Engine · Stability-First Architecture · Built for Sustained Clash</p>
-            <div class="hero-stats">
-                <div class="stat">
-                    <span class="stat-num">91<span class="stat-pct">%</span></span>
-                    <span class="stat-label">Stability @ 60 CPS</span>
-                </div>
-                <div class="stat-divider"></div>
-                <div class="stat">
-                    <span class="stat-num">2.0</span>
-                    <span class="stat-label">Latest Version</span>
-                </div>
-                <div class="stat-divider"></div>
-                <div class="stat">
-                    <span class="stat-num">∞</span>
-                    <span class="stat-label">Free Forever</span>
-                </div>
-            </div>
-            <div class="hero-actions">
-                <a href="https://github.com/wuyscute123/WuysMacro/releases/download/2.0ToeMethod/WuysMacroV2.0-ToeMethod.exe" class="btn-primary">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                    TẢI XUỐNG NGAY
-                </a>
-                <a href="https://github.com/wuyscute123/WuysMacro" class="btn-secondary" target="_blank">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-                    VIEW SOURCE
-                </a>
-            </div>
-        </div>
-        <div class="hero-visual">
-            <div class="hv-ring ring1"></div>
-            <div class="hv-ring ring2"></div>
-            <div class="hv-ring ring3"></div>
-            <div class="hv-core">
-                <span class="core-text">W</span>
-            </div>
-            <div class="hv-particles" id="particles"></div>
-        </div>
-        <div class="scroll-hint">
-            <span>SCROLL</span>
-            <div class="scroll-line"></div>
-        </div>
-    </section>
+    <!-- Title -->
+    <h1 class="lang-title">
+        <span class="w">W</span>UYS<span style="color: var(--accent);">.</span>
+    </h1>
+    <p class="lang-subtitle">Choose your language / Chọn ngôn ngữ</p>
 
-    <!-- ABOUT -->
-    <section class="about" id="about">
-        <div class="container">
-            <div class="section-label">// ABOUT</div>
-            <div class="about-grid">
-                <div class="about-text">
-                    <h2 class="section-title">Không phải brute force.<br><em>Là nghệ thuật.</em></h2>
-                    <p>Wuys Macro được xây dựng với triết lý <strong>stability-first</strong> — tập trung vào timing chính xác và nhịp ổn định trong sustained clash, thay vì chỉ tăng CPS thô.</p>
-                    <p>Phiên bản <strong>2.0 Toe Method</strong> là bước tiến lớn nhất: engine được viết lại hoàn toàn, loại bỏ bloat, tối ưu từng millisecond.</p>
-                    
-                    <!-- Author Card -->
-                    <div class="about-author">
-                        <div class="author-avatar">W</div>
-                        <div class="author-info">
-                            <span class="author-name">wuys nee 🐧</span>
-                            <span class="author-role">Developer · Facebook</span>
-                        </div>
-                    </div>
-                    
-                    <!-- Wanna 1v1 Card -->
-                    <div class="wanna-card" id="wanna-card">
-                        <div class="wanna-header">
-                            <div class="wanna-icon">⚔️</div>
-                            <h3>Wanna 1v1?</h3>
-                        </div>
-                        <div class="wanna-status">
-                            <div class="status-dot" id="status-dot"></div>
-                            <span class="status-text" id="status-text">Loading status...</span>
-                        </div>
-                        <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem;">
-                            Nếu bạn muốn thử sức macro, autoclicker hay script, thì hãy kết bạn trên Roblox với mình!
-                        </p>
-                        <a href="https://www.roblox.com/users/10785897771/profile" target="_blank" class="wanna-btn" id="wanna-btn">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-                            KẾT BẠN TRÊN ROBLOX
-                        </a>
-                    </div>
-                </div>
+    <!-- Language Cards -->
+    <div class="lang-cards">
+        <!-- Tiếng Việt -->
+        <div class="lang-card" onclick="selectLanguage('vi')">
+            <div class="lang-flag">🇻🇳</div>
+            <div class="lang-name">Tiếng Việt</div>
+            <div class="lang-native">VI</div>
+        </div>
+        
+        <!-- English -->
+        <div class="lang-card" onclick="selectLanguage('en')">
+            <div class="lang-flag">🇬🇧</div>
+            <div class="lang-name">English</div>
+            <div class="lang-native">EN</div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="lang-footer">
+        <span>WUYS MACRO — PRECISION CLICK ENGINE</span><br>
+        <a href="https://github.com/wuyscute123/WuysMacro" target="_blank">GITHUB</a> · 
+        <a href="#" onclick="alert('Liên hệ qua Facebook: wuys nee 🐧')">CONTACT</a>
+    </div>
+</div>
+
+<script>
+    // ========== BOOT SEQUENCE ==========
+    (function() {
+        const bootScreen = document.getElementById('boot-screen');
+        const bootBar = document.getElementById('boot-bar');
+        const bootStatus = document.getElementById('boot-status');
+        const bootHint = document.getElementById('boot-hint');
+        
+        const statusMessages = [
+            'INITIALIZING SYSTEM...',
+            'LOADING MODULES...',
+            'CALIBRATING CLICK ENGINE...',
+            'TOE METHOD v2.0 ACTIVE',
+            'READY'
+        ];
+        
+        let progress = 0;
+        let step = 0;
+        
+        const bootInterval = setInterval(() => {
+            progress += 2;
+            bootBar.style.width = progress + '%';
+            
+            // Update status message
+            if (progress >= 20 && step === 0) {
+                step = 1;
+                bootStatus.textContent = statusMessages[1];
+            } else if (progress >= 45 && step === 1) {
+                step = 2;
+                bootStatus.textContent = statusMessages[2];
+            } else if (progress >= 70 && step === 2) {
+                step = 3;
+                bootStatus.textContent = statusMessages[3];
+            } else if (progress >= 90 && step === 3) {
+                step = 4;
+                bootStatus.textContent = statusMessages[4];
+            }
+            
+            if (progress >= 100) {
+                clearInterval(bootInterval);
+                bootStatus.textContent = statusMessages[4];
+                bootHint.style.opacity = '1';
+                bootHint.style.animation = 'blink-hint 1.5s step-end infinite';
                 
-                <!-- Code Card -->
-                <div class="about-card">
-                    <div class="card-header">
-                        <span class="card-badge">LIVE</span>
-                        system_info.json
-                    </div>
-                    <div class="card-code">
-                        <pre><code><span class="c-brace">{</span>
-  <span class="c-key">"macro"</span><span class="c-colon">:</span> <span class="c-str">"Wuys Macro"</span><span class="c-comma">,</span>
-  <span class="c-key">"version"</span><span class="c-colon">:</span> <span class="c-str">"2.0 Toe Method"</span><span class="c-comma">,</span>
-  <span class="c-key">"stability"</span><span class="c-colon">:</span> <span class="c-num">0.91</span><span class="c-comma">,</span>
-  <span class="c-key">"cps_target"</span><span class="c-colon">:</span> <span class="c-num">60</span><span class="c-comma">,</span>
-  <span class="c-key">"mode"</span><span class="c-colon">:</span> <span class="c-str">"legit_jitter"</span><span class="c-comma">,</span>
-  <span class="c-key">"status"</span><span class="c-colon">:</span> <span class="c-green">"ACTIVE"</span>
-<span class="c-brace">}</span></code></pre>
-                    </div>
-                    <div class="card-footer">
-                        <span class="cf-dot"></span> Engine online
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+                // Enable tap to enter
+                bootScreen.style.pointerEvents = 'auto';
+                bootScreen.addEventListener('click', dismissBoot);
+                document.addEventListener('keydown', function(e) {
+                    if (e.code === 'Space' || e.code === 'Enter') {
+                        dismissBoot();
+                    }
+                });
+            }
+        }, 30);
+        
+        function dismissBoot() {
+            bootScreen.classList.add('fade-out');
+            setTimeout(() => {
+                bootScreen.classList.add('hidden');
+            }, 600);
+            
+            // Clean up listeners
+            bootScreen.removeEventListener('click', dismissBoot);
+            bootScreen.style.pointerEvents = 'none';
+        }
+    })();
 
-    <!-- FEATURES -->
-    <section class="features" id="features">
-        <div class="container">
-            <div class="section-label">// FEATURES</div>
-            <h2 class="section-title center">Tại sao chọn<br><em>Wuys Macro?</em></h2>
-            <div class="features-grid">
-                <div class="feature-card fc1">
-                    <div class="fc-icon">⚡</div>
-                    <h3>~91% Stability</h3>
-                    <p>Engine đạt độ ổn định 91% ở 60 CPS — nhịp click đều, không drop frame, không jitter không mong muốn.</p>
-                </div>
-                <div class="feature-card fc2">
-                    <div class="fc-icon">🎯</div>
-                    <h3>Toe Method</h3>
-                    <p>Kỹ thuật timing độc quyền giúp duy trì nhịp trong sustained clash dài hơi mà không cần CPS cao.</p>
-                </div>
-                <div class="feature-card fc3">
-                    <div class="fc-icon">🕹️</div>
-                    <h3>Legit Mode</h3>
-                    <p>Jitter click style tự nhiên — trông như người chơi thật, không bị phát hiện bởi anti-cheat thông thường.</p>
-                </div>
-                <div class="feature-card fc4">
-                    <div class="fc-icon">🚀</div>
-                    <h3>Zero Bloat</h3>
-                    <p>Loại bỏ toàn bộ tính năng dư thừa. Chỉ giữ lại những gì cần thiết để tối ưu hiệu năng tuyệt đối.</p>
-                </div>
-                <div class="feature-card fc5">
-                    <div class="fc-icon">⚔️</div>
-                    <h3>Anti-AHK</h3>
-                    <p>Dễ dàng counter macro AHK kiểu cũ và các auto clicker spam CPS cao trong mọi tình huống.</p>
-                </div>
-                <div class="feature-card fc6">
-                    <div class="fc-icon">🆓</div>
-                    <h3>100% Free</h3>
-                    <p>Open source, miễn phí mãi mãi. Code hoàn toàn public trên GitHub để cộng đồng kiểm chứng.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+    // ========== LANGUAGE SELECTION ==========
+    function selectLanguage(lang) {
+        // Lưu lựa chọn ngôn ngữ vào localStorage
+        localStorage.setItem('wuys_preferred_lang', lang);
+        
+        // Chuyển hướng đến trang tương ứng
+        if (lang === 'vi') {
+            window.location.href = 'index_vi.html';
+        } else {
+            window.location.href = 'index_en.html';
+        }
+    }
 
-    <!-- DEMO -->
-    <section class="demo" id="demo">
-        <div class="container">
-            <div class="section-label">// DEMO</div>
-            <h2 class="section-title center">Highlight <em>Testing</em></h2>
-            <div class="demo-wrapper">
-                <div class="demo-frame">
-                    <div class="demo-chrome">
-                        <span class="dc-dot red"></span>
-                        <span class="dc-dot yellow"></span>
-                        <span class="dc-dot green"></span>
-                        <span class="dc-title">testing_session_v2.mp4</span>
-                    </div>
-                    <div class="demo-video-wrap">
-                        <video controls class="demo-video">
-                            <source src="testing-video.mp4" type="video/mp4">
-                            <div class="video-placeholder">
-                                <span>▶</span>
-                                <p>testing-video.mp4</p>
-                            </div>
-                        </video>
-                    </div>
-                </div>
-                <div class="demo-cta">
-                    <p>Ấn tượng? Tải về và trải nghiệm ngay.</p>
-                    <a href="https://github.com/wuyscute123/WuysMacro/releases/download/2.0ToeMethod/WuysMacroV2.0-ToeMethod.exe" class="btn-primary">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                        TẢI WUYS MACRO v2.0
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
+    // ========== PARTICLES EFFECT ==========
+    (function() {
+        const particlesContainer = document.getElementById('particles');
+        if (!particlesContainer) return;
+        
+        for (let i = 0; i < 15; i++) {
+            const particle = document.createElement('div');
+            const tx = (Math.random() * 30 - 15) + 'px';
+            const ty = (Math.random() * 30 - 15) + 'px';
+            
+            particle.style.cssText = `
+                position: absolute;
+                width: 2px;
+                height: 2px;
+                background: #00e5ff;
+                border-radius: 50%;
+                opacity: ${Math.random() * 0.4 + 0.2};
+                left: ${Math.random() * 100}%;
+                top: ${Math.random() * 100}%;
+                --tx: ${tx};
+                --ty: ${ty};
+                animation: float-particle ${Math.random() * 4 + 3}s infinite alternate;
+            `;
+            particlesContainer.appendChild(particle);
+        }
+    })();
 
-    <!-- FOOTER -->
-    <footer class="footer">
-        <div class="footer-grid">
-            <div class="footer-brand">
-                <div class="footer-logo"><span class="logo-w">W</span>UYS<span class="logo-dot">.</span></div>
-                <p>Precision Click Engine<br>Built with ❤️ by Wuys</p>
-            </div>
-            <div class="footer-links">
-                <h4>Project</h4>
-                <a href="https://github.com/wuyscute123/WuysMacro" target="_blank">GitHub Repo</a>
-                <a href="https://github.com/wuyscute123/WuysMacro/releases" target="_blank">Releases</a>
-            </div>
-            <div class="footer-links">
-                <h4>Connect</h4>
-                <a href="#">Facebook</a>
-                <a href="https://github.com/wuyscute123" target="_blank">GitHub</a>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <span>©2026 Wuys Macro. All rights reserved.</span>
-            <span class="footer-build">BUILD 2.0.0</span>
-        </div>
-    </footer>
+    // ========== KEYBOARD SHORTCUT ==========
+    document.addEventListener('keydown', function(e) {
+        // Phím V cho tiếng Việt
+        if (e.code === 'KeyV') {
+            selectLanguage('vi');
+        }
+        // Phím E cho English
+        if (e.code === 'KeyE') {
+            selectLanguage('en');
+        }
+    });
+</script>
 
-</div>
-
-<script src="script.js"></script>
 </body>
 </html>
